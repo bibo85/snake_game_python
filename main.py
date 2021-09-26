@@ -35,8 +35,12 @@ def draw_block(color, column, row):
 
 screen = pygame.display.set_mode(WINDOW_SIZE)
 pygame.display.set_caption('Змейка')  # title окна
+timer = pygame.time.Clock()
 
 snake_block = [SnakeBlock(9, 9)]
+
+d_row = 0  # отвечает за смену положения по горизонтали
+d_col = 1  # отвечает за смену положения по вертикали
 
 while True:
     # проходим по всем событиям
@@ -44,6 +48,19 @@ while True:
         # Если нажали на крестик, то выход
         if event.type == pygame.QUIT:
             pygame.quit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP and d_col != 0:
+                d_row = -1
+                d_col = 0
+            elif event.key == pygame.K_DOWN and d_col != 0:
+                d_row = 1
+                d_col = 0
+            elif event.key == pygame.K_LEFT and d_row != 0:
+                d_row = 0
+                d_col = -1
+            elif event.key == pygame.K_RIGHT and d_row != 0:
+                d_row = 0
+                d_col = 1
 
     screen.fill(FRAME_COLOR)  # заливаем фон
 
@@ -61,5 +78,8 @@ while True:
 
     for block in snake_block:
         draw_block(COLOR_SNAKE, block.x, block.y)
+        block.x += d_col
+        block.y += d_row
 
     pygame.display.flip()  # обновляем экран
+    timer.tick(2)  # задаем частоту обновления кадров
