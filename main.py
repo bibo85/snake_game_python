@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import pygame
+import sys
 
 SIZE_BLOCK = 20  # размер блока
 COUNT_BLOCKS = 20  # количество блоков в рядах и колонках
@@ -24,6 +25,9 @@ class SnakeBlock:
         self.x = x
         self.y = y
 
+    def is_inside(self):
+        return 0 < self.x < COUNT_BLOCKS and 0 < self.y < COUNT_BLOCKS
+
 
 def draw_block(color, column, row):
     pygame.draw.rect(screen, color, [SIZE_BLOCK + column * SIZE_BLOCK + MARGIN * column,
@@ -37,17 +41,19 @@ screen = pygame.display.set_mode(WINDOW_SIZE)
 pygame.display.set_caption('Змейка')  # title окна
 timer = pygame.time.Clock()
 
-snake_block = [SnakeBlock(9, 9)]
+snake_blocks = [SnakeBlock(8, 9), SnakeBlock(9, 9), SnakeBlock(10, 9)]
 
-d_row = 0  # отвечает за смену положения по горизонтали
-d_col = 1  # отвечает за смену положения по вертикали
+d_row = 0  # отвечает за смену положения по вертикали
+d_col = 1  # отвечает за смену положения по горизонтали
 
 while True:
     # проходим по всем событиям
     for event in pygame.event.get():
         # Если нажали на крестик, то выход
         if event.type == pygame.QUIT:
+            print('exit')
             pygame.quit()
+            sys.exit()
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP and d_col != 0:
                 d_row = -1
@@ -76,10 +82,19 @@ while True:
                 color = WHITE_COLOR
             draw_block(color, column, row)
 
-    for block in snake_block:
+    # отрисовка змейки
+    head = snake_blocks[-1]  # голова змейки - последний элемент списка
+    if not head.is_inside():  # если змейка столкнулась со стенкой игрового поля
+        print('crash')
+        pygame.quit()
+        sys.exit()
+
+    for block in snake_blocks:
         draw_block(COLOR_SNAKE, block.x, block.y)
-        block.x += d_col
-        block.y += d_row
+
+    new_head = SnakeBlock(head.x + d_col, head.y + d_row)  # на ее основе создаем новую голову
+    snake_blocks.append(new_head)
+    snake_blocks.pop(0)
 
     pygame.display.flip()  # обновляем экран
     timer.tick(2)  # задаем частоту обновления кадров
