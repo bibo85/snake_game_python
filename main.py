@@ -4,6 +4,8 @@ import pygame
 import sys
 import random
 
+pygame.init()
+
 SIZE_BLOCK = 20  # размер блока
 COUNT_BLOCKS = 20  # количество блоков в рядах и колонках
 MARGIN = 1  # отступ между блоками
@@ -11,7 +13,7 @@ HEADER_MARGIN = 70  # отступ шапки
 WIDTH = SIZE_BLOCK * COUNT_BLOCKS + 2 * SIZE_BLOCK + MARGIN * COUNT_BLOCKS
 HEIGHT = HEADER_MARGIN + 2 * SIZE_BLOCK + SIZE_BLOCK * COUNT_BLOCKS + MARGIN * COUNT_BLOCKS
 WINDOW_SIZE = [WIDTH, HEIGHT]  # размер начального экрана
-FRAME_REFRESH_RATE = 3  # Частота обновления экрана
+START_SNAKE_SPEED = 1  # Стартовая скорость змейки -  Частота обновления экрана
 
 # цвета блоков поля
 FRAME_COLOR = (0, 255, 204)  # цвет заливки окна
@@ -29,7 +31,7 @@ class SnakeBlock:
         self.y = y
 
     def is_inside(self):
-        return 0 < self.x < COUNT_BLOCKS and 0 < self.y < COUNT_BLOCKS
+        return 0 <= self.x < COUNT_BLOCKS and 0 <= self.y < COUNT_BLOCKS
 
     def __eq__(self, other):
         return isinstance(other, SnakeBlock) and self.x == other.x and self.y == other.y
@@ -57,6 +59,9 @@ def get_random_empty_block():
 screen = pygame.display.set_mode(WINDOW_SIZE)
 pygame.display.set_caption('Змейка')  # title окна
 timer = pygame.time.Clock()
+total = 0  # подсчет очков
+font = pygame.font.SysFont('Arial', 18)
+snake_speed_level = 1  # уровень скорости змейки
 
 snake_blocks = [SnakeBlock(8, 9), SnakeBlock(9, 9), SnakeBlock(10, 9)]
 snake_food = get_random_empty_block()  # Начальная координата змейки
@@ -87,9 +92,7 @@ while True:
                 d_col = 1
 
     screen.fill(FRAME_COLOR)  # заливаем фон
-
-    # Заливаем шапку окна цветом
-    pygame.draw.rect(screen, HEADER_COLOR, [0, 0, WIDTH, HEADER_MARGIN])
+    pygame.draw.rect(screen, HEADER_COLOR, [0, 0, WIDTH, HEADER_MARGIN])  # Заливаем шапку окна цветом
 
     # рисуем игровое поле
     for row in range(COUNT_BLOCKS):
@@ -106,19 +109,28 @@ while True:
     # отрисовка змейки
     head = snake_blocks[-1]  # голова змейки - последний элемент списка
     if not head.is_inside():  # если змейка столкнулась со стенкой игрового поля
-        print('crash')
+        print('Game Over')
         pygame.quit()
         sys.exit()
-
     for block in snake_blocks:
         draw_block(COLOR_SNAKE, block.x, block.y)
 
+    # Ячейка с едой пересекается (змейка съедаем ячейку)
     if snake_food == head:
+        snake_blocks.append(snake_food)
+        total += 1
+        snake_speed_level = total // 5 + 1
         snake_food = get_random_empty_block()
+
+    # Обновление статистики
+    text_total = font.render(f'Score: {total}', 0, WHITE_COLOR)
+    text_speed = font.render(f'Speed: {snake_speed_level}', 0, WHITE_COLOR)
+    screen.blit(text_total, (5, 5))
+    screen.blit(text_speed, (5, 25))
 
     new_head = SnakeBlock(head.x + d_col, head.y + d_row)  # на ее основе создаем новую голову
     snake_blocks.append(new_head)
     snake_blocks.pop(0)
 
     pygame.display.flip()  # обновляем экран
-    timer.tick(FRAME_REFRESH_RATE)  # задаем частоту обновления кадров
+    timer.tick(START_SNAKE_SPEED + snake_speed_level)  # задаем скорость змейки - частоту обновления кадров
