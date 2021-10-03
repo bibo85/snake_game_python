@@ -66,8 +66,8 @@ snake_speed_level = 1  # уровень скорости змейки
 snake_blocks = [SnakeBlock(8, 9), SnakeBlock(9, 9), SnakeBlock(10, 9)]
 snake_food = get_random_empty_block()  # Начальная координата змейки
 
-d_row = 0  # отвечает за смену положения по вертикали
-d_col = 1  # отвечает за смену положения по горизонтали
+d_row = buf_row = 0  # отвечает за смену положения по вертикали
+d_col = buf_col = 1  # отвечает за смену положения по горизонтали
 
 while True:
     # проходим по всем событиям
@@ -79,17 +79,17 @@ while True:
             sys.exit()
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_UP and d_col != 0:
-                d_row = -1
-                d_col = 0
+                buf_row = -1
+                buf_col = 0
             elif event.key == pygame.K_DOWN and d_col != 0:
-                d_row = 1
-                d_col = 0
+                buf_row = 1
+                buf_col = 0
             elif event.key == pygame.K_LEFT and d_row != 0:
-                d_row = 0
-                d_col = -1
+                buf_row = 0
+                buf_col = -1
             elif event.key == pygame.K_RIGHT and d_row != 0:
-                d_row = 0
-                d_col = 1
+                buf_row = 0
+                buf_col = 1
 
     screen.fill(FRAME_COLOR)  # заливаем фон
     pygame.draw.rect(screen, HEADER_COLOR, [0, 0, WIDTH, HEADER_MARGIN])  # Заливаем шапку окна цветом
@@ -128,6 +128,8 @@ while True:
     screen.blit(text_total, (5, 5))
     screen.blit(text_speed, (5, 25))
 
+    d_row = buf_row
+    d_col = buf_col
     new_head = SnakeBlock(head.x + d_col, head.y + d_row)  # на ее основе создаем новую голову
     snake_blocks.append(new_head)
     snake_blocks.pop(0)
