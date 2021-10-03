@@ -13,7 +13,7 @@ HEADER_MARGIN = 70  # отступ шапки
 WIDTH = SIZE_BLOCK * COUNT_BLOCKS + 2 * SIZE_BLOCK + MARGIN * COUNT_BLOCKS
 HEIGHT = HEADER_MARGIN + 2 * SIZE_BLOCK + SIZE_BLOCK * COUNT_BLOCKS + MARGIN * COUNT_BLOCKS
 WINDOW_SIZE = [WIDTH, HEIGHT]  # размер начального экрана
-START_SNAKE_SPEED = 1  # Стартовая скорость змейки -  Частота обновления экрана
+START_SNAKE_SPEED = 4  # Стартовая скорость змейки -  Частота обновления экрана
 
 # цвета блоков поля
 FRAME_COLOR = (0, 255, 204)  # цвет заливки окна
@@ -128,11 +128,19 @@ while True:
     screen.blit(text_total, (5, 5))
     screen.blit(text_speed, (5, 25))
 
+    pygame.display.flip()  # обновляем экран
+
     d_row = buf_row
     d_col = buf_col
     new_head = SnakeBlock(head.x + d_col, head.y + d_row)  # на ее основе создаем новую голову
+
+    # если змейка врезалась сама в себя
+    if new_head in snake_blocks:
+        print('Game Over')
+        pygame.quit()
+        sys.exit()
+
     snake_blocks.append(new_head)
     snake_blocks.pop(0)
 
-    pygame.display.flip()  # обновляем экран
     timer.tick(START_SNAKE_SPEED + snake_speed_level)  # задаем скорость змейки - частоту обновления кадров
