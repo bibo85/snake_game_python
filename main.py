@@ -15,6 +15,7 @@ WIDTH = SIZE_BLOCK * COUNT_BLOCKS + 2 * SIZE_BLOCK + MARGIN * COUNT_BLOCKS
 HEIGHT = HEADER_MARGIN + 2 * SIZE_BLOCK + SIZE_BLOCK * COUNT_BLOCKS + MARGIN * COUNT_BLOCKS
 WINDOW_SIZE = [WIDTH, HEIGHT]  # размер начального экрана
 START_SNAKE_SPEED = 4  # Стартовая скорость змейки -  Частота обновления экрана
+bg_image = pygame.image.load('bg_snake_game.png')
 
 # цвета блоков поля
 FRAME_COLOR = (0, 255, 204)  # цвет заливки окна
@@ -152,11 +153,26 @@ def start_the_game():
         timer.tick(START_SNAKE_SPEED + snake_speed_level)  # задаем скорость змейки - частоту обновления кадров
 
 
-menu = pygame_menu.Menu('Игра Змейка', 400, 300,
-                        theme=pygame_menu.themes.THEME_BLUE)
+main_theme = pygame_menu.themes.THEME_BLUE
+main_theme.set_background_color_opacity(.8)
+menu = pygame_menu.Menu('Змейка', 400, 300,
+                        theme=main_theme)
 
 menu.add.text_input('Имя:', default='Игрок 1')
 menu.add.button('Играть', start_the_game)
 menu.add.button('Выход', pygame_menu.events.EXIT)
 
-menu.mainloop(screen)
+while True:
+
+    screen.blit(bg_image, (0, 0))
+
+    events = pygame.event.get()
+    for event in events:
+        if event.type == pygame.QUIT:
+            exit()
+
+    if menu.is_enabled():
+        menu.update(events)
+        menu.draw(screen)
+
+    pygame.display.update()
